@@ -57,38 +57,48 @@ void editorCursorLeftScreen() {
   editorEscapeSequence("\x1b[H", 3);
 }
 
-// clears the terminal
+// clears the terminal.
 void editorClearScreen() {
-  // j clears screen
+  // j clears screen.
   editorEscapeSequence("\x1b[2j", 4);
   editorCursorLeftScreen();
 }
 
+// adds a column of tildes on the left column.
 void editorDrawRows() {
-  int y;
+  struct winsize win_dimensions;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &win_dimensions);
+  int ws_row = win_dimensions.ws_row;
+  for (int i = 0; i < ws_row; i ++) {
+    editorEscapeSequence("~\r\n", 3);
+  }
 }
 
-// refreshes the screen
+// refreshes the screen.
 void editorRefreshScreen() {
   editorClearScreen();
+
+  editorDrawRows();
+
+  editorCursorLeftScreen();
 }
 
-// toggles terminal between cooked and raw mode
+// toggles terminal between cooked and raw mode.
 void manageTerminalMode() {
    runGetAttr(&og_settings);
 
-  // at exit, reset the terminal
+  // at exit, reset the terminal.
   tcgetattr(STDIN_FILENO, &og_settings);
   atexit(resetTerminal);
   
   struct termios terminal = og_settings;
-  // retrieves attributes from the terminal
+  // retrieves attributes from the terminal.
   tcgetattr(STDIN_FILENO, &terminal);
 
-  // toggle flags
+  // toggle flags.
   terminal = toggleFlags(&terminal);
   
- // sets new attributes to the terminal
+  // sets new attributes to the terminal
   // TCAFLUSH specifies changes to be made when all output
   // has been written
   runSetAttr(&terminal);
