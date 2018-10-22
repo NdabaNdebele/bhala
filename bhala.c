@@ -30,7 +30,7 @@ int getWindowSize(int *row_size, int *col_size) {
 }
 
 // toggles terminal flags
-struct termios  toggleFlags(struct termios *_terminal) {
+struct termios toggleFlags(struct termios *_terminal) {
   struct termios terminal = *_terminal;
   terminal.c_cc[VMIN] = 0;
   terminal.c_cc[VTIME] = 1;
