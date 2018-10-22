@@ -11,7 +11,23 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f) // sets first 3 bits to 0, sets value of bit 5 and 6
 
-struct termios og_settings;
+
+struct editorConfig {
+  struct termios og_settings;
+};
+
+struct editorConfig EC;
+
+
+int getWindowSize(int *row_size, int *col_size) {
+  struct winsize win_dimensions;
+  if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &win_dimensions) == -1 || win_dimensions.ws_col == 0) {
+    return -1;
+  } else {
+    *col_size = win_dimensions.row_size;
+    *row_size = win_dimensions.ws_row.
+  }
+}
 
 // toggles terminal flags
 struct termios  toggleFlags(struct termios *_terminal) {
@@ -45,7 +61,7 @@ void runGetAttr(struct termios *terminal) {
 }
 
 void resetTerminal() {
-  runSetAttr(&og_settings);
+  runSetAttr(&EC.og_settings);
 }
 
 void editorEscapeSequence(char seq[], int numOfBytes) {
@@ -85,7 +101,8 @@ void editorRefreshScreen() {
 
 // toggles terminal between cooked and raw mode.
 void manageTerminalMode() {
-   runGetAttr(&og_settings);
+  struct termios og_settings = EC.og_settings;
+  runGetAttr(&og_settings);
 
   // at exit, reset the terminal.
   tcgetattr(STDIN_FILENO, &og_settings);
